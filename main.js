@@ -1,7 +1,8 @@
-let url = "https://www.espncricinfo.com/series/ipl-2020-21-1210595";
+const url = "https://www.espncricinfo.com/series/ipl-2020-21-1210595";
 
 const request = require("request");
 const cheerio = require("cheerio");
+const getAllMatchObj = require("./getAllMatch");
 
 // get html form url
 request(url,cb);
@@ -16,12 +17,13 @@ request(url,cb);
  }
 
  function handleHTML(html){
-     let selecTool = cheerio.load(html);
-     let anchorElem = selecTool('a[data-hover="View All Results"]');
+     let $ = cheerio.load(html);
+     let anchorElem = $('a[data-hover="View All Results"]');
      // attr method --> Method for getting all attributes with their values
      let relativeLink = anchorElem.attr("href");
-     console.log(relativeLink);
+    //  console.log(relativeLink);
      let fullLink = "https://www.espncricinfo.com" + relativeLink;
-     console.log(fullLink);
+    //  console.log(fullLink);
+     getAllMatchObj.getAllMatch(fullLink);
  }
 
