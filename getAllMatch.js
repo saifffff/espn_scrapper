@@ -20,14 +20,14 @@ function handleHtml(html){
     let $ = cheerio.load(html);
     let allMatchArray = $('a[data-hover="Scorecard"]'); 
     // console.log(allMatchArray.length);
-    for(let i = 0; i < allMatchArray.length; i++){
-        let scLinkRelative = $(allMatchArray[i]).attr("href");
+    // for(let i = 0; i < allMatchArray.length; i++){
+        let scLinkRelative = $(allMatchArray[0]).attr("href");
         // console.log(scLinkRelative); // this is a relative link
         let scLinkFull = homeurl+scLinkRelative;
         // console.log(scLinkFull);
         gifs(scLinkFull);
 
-    }
+    // }
 }
 
 
