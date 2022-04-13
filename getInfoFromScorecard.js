@@ -2,6 +2,7 @@ const request = require("request");
 const cheerio = require("cheerio");
 const fs = require("fs");
 const path = require("path");
+const xlsx = require("xlsx");
 
 function getScorecardInfo(url) {
     request(url, cb);
@@ -12,6 +13,7 @@ function cb(err, res, html) {
     if (err){ console.error(err);}
     else {
         handleHtml(html);
+        //console.log("in gifs handle html "+count);
     }
 }
 
@@ -40,10 +42,10 @@ function handleHtml(html) {
 
     // get innings
     let allBatsmenTable = $(".table.batsman tbody");
-    let htmlString = "";
-    let count = 0;
+    // let htmlString = "";
+    // let count = 0;
     for(let i = 0; i< allBatsmenTable.length; i++){
-        htmlString += $(allBatsmenTable[i]).html();
+        // htmlString += $(allBatsmenTable[i]).html();
         // get the descendants(table rows) of each element (table)
         let allRows = $(allBatsmenTable[i]).find("tr"); //all filled and empty rows
         for(let j = 0; j < allRows.length; j++){
@@ -62,7 +64,7 @@ function handleHtml(html) {
                     `playerName -> ${playerName} runsScored ->  ${runs} ballsPlayed ->  ${balls} numbOfFours -> ${numberOf4} numbOfSixes -> ${numberOf6}  strikeRate-> ${sr}`
                   );
                 
-
+               // processInfo(dateOfMatch,venueOfMatch,matchRes,team1,team2,playerName,runs,balls,numberOf4,numberOf6,sr);
 
             }
 
@@ -76,8 +78,51 @@ function handleHtml(html) {
 
 }
 
+function processInfo(dateOfMatch,venueOfMatch,matchRes,team1,team2,playerName,runs,balls,numberOf4,numberOf6,sr){
+    let teamNamePath = path.join(__dirname,"IPL",team1);
+    if(!fs.existsSync(teamNamePath)){
+        fs.mkdirSync(teamNamePath);
+    }
+
+    let playerPath = path.join(teamNamePath,playerName+".xlsx");
+    let content = excelReader(playerPath,playerName);
+
+    let playerObj = {
+        dateOfMatch,venueOfMatch,matchRes,team1,team2,playerName,runs,balls,numberOf4,numberOf6,sr
+    };
+
+    content.push(playerObj);
+
+    excelWriter(playerPath,content,playerName);
 
 
+}
+
+function excelReader(playerPath,sheetName){
+    if(!fs.existsSync(playerPath)){
+        // if file does not exist return an empty array
+        return [];
+    }
+    // if exists read file
+    let workBook = xlsx.readFile(playerPath);
+    // A dictionary of the worksheets in the workbook. using SheetNames to reference these
+    let excelData = workBook.Sheets[sheetName];
+    let playerObj = xlsx.utils.sheet_to_json(excelData);
+    return playerObj;
+
+    
+}
+
+function excelWriter(playerPath, jsObject, sheetName) {
+    //Creates a new workbook
+    let newWorkBook = xlsx.utils.book_new();
+    //Converts an array of JS objects to a worksheet.
+    let newWorkSheet = xlsx.utils.json_to_sheet(jsObject);
+    //it appends a worksheet to a workbook
+    xlsx.utils.book_append_sheet(newWorkBook, newWorkSheet, sheetName);
+    // Attempts to write or download workbook data to file
+    xlsx.writeFile(newWorkBook, playerPath);
+  }
 
 module.exports = {
     gifs: getScorecardInfo,

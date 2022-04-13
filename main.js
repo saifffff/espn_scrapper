@@ -28,7 +28,8 @@ request(url,cb);
 
  function handleHTML(html){
      let $ = cheerio.load(html);
-     let anchorElem = $('a[data-hover="View All Results"]');
+     let anchorElem = $(".ds-block .ds-inline-flex.ds-items-center.ds-leading-none  .ds-underline-offset-4");
+     //let anchorElem = $('a[data-hover="View All Results"]');
      // attr method --> Method for getting all attributes with their values
      let relativeLink = anchorElem.attr("href");
     //  console.log(relativeLink);
